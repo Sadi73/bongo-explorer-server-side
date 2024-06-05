@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jcb8og7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -33,24 +33,41 @@ async function run() {
         // USER RELATED API
 
         app.get('/users', async (req, res) => {
-            const cursor = usersCollection.find();
+            const email = req.query?.email;
+            const query = email ? { email } : {};
+            const cursor = usersCollection.find(query);
             const result = await cursor.toArray();
-            res.send({ result })
+            res.send(result);
         });
 
         app.post('/users', async (req, res) => {
             const data = req?.body;
-
             const query = { email: data?.email };
             const userInDatabase = await usersCollection.find(query).toArray();
 
             if (userInDatabase.length > 0) {
-                res.send({message:'user already exists'})
+                res.send({ message: 'user already exists' })
             } else {
                 const result = await usersCollection.insertOne(data);
                 res.send(result);
             }
+        });
 
+        // GUIDE RELATED API
+
+        app.get('/guides/all', async (req, res) => {
+            const query = { role: 'GUIDE' };
+            const cursor = usersCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.get('/guide', async (req, res) => {
+            const email = req?.query?.email;
+            const query = { email: email };
+            const cursor = usersCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
         });
 
 
