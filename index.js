@@ -28,6 +28,7 @@ async function run() {
         await client.connect();
         const database = client.db("bongo-explorer");
         const usersCollection = database.collection("users");
+        const packagesCollection = database.collection("packages");
 
 
         // USER RELATED API
@@ -70,7 +71,26 @@ async function run() {
             res.send(result);
         });
 
+        // PACKAGE RELATED API
+        app.get('/packages/all', async (req, res) => {
+            const cursor = packagesCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
 
+        app.get('/package/:packageId', async (req, res) => {
+            const id = req?.params?.packageId;
+            const query = { _id: new ObjectId(id) };
+            const cursor = packagesCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.post('/packages/all', async (req, res) => {
+            const data = req?.body;
+            const result = await packagesCollection.insertOne(data);
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
