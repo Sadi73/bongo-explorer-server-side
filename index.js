@@ -25,10 +25,12 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         const database = client.db("bongo-explorer");
         const usersCollection = database.collection("users");
         const packagesCollection = database.collection("packages");
+        const bookingCollection = database.collection("bookedPackage");
+        const wishlistCollection = database.collection("wishlist");
 
 
         // USER RELATED API
@@ -80,20 +82,51 @@ async function run() {
 
         app.get('/package/:packageId', async (req, res) => {
             const id = req?.params?.packageId;
-            const query = { _id: new ObjectId(id) };
+            const query = { id: parseInt(id) };
             const cursor = packagesCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
         });
 
-        app.post('/packages/all', async (req, res) => {
+        app.post('/packages/add', async (req, res) => {
+            const count = await packagesCollection.estimatedDocumentCount();
             const data = req?.body;
+            data.id = count + 1;
             const result = await packagesCollection.insertOne(data);
             res.send(result);
-        })
+        });
+
+        // BOOK PACKAGE RELATED API
+        app.get('/booked-packages/all', async (req, res) => {
+            const email = req?.query?.email;
+            const query = { touristEmail: email }
+            const cursor = bookingCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.post('/book-package', async (req, res) => {
+            const data = req?.body;
+            const result = await bookingCollection.insertOne(data);
+            res.send(result);
+        });
+
+        app.get('/wishlist/all', async (req, res) => {
+            const email = req?.query?.email;
+            const query = { touristEmail: email }
+            const cursor = wishlistCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.post('/wishlist/add', async (req, res) => {
+            const data = req?.body;
+            const result = await wishlistCollection.insertOne(data);
+            res.send(result);
+        });
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
