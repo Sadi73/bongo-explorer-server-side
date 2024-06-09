@@ -31,6 +31,7 @@ async function run() {
         const packagesCollection = database.collection("packages");
         const bookingCollection = database.collection("bookedPackage");
         const wishlistCollection = database.collection("wishlist");
+        const requestCollection = database.collection("request");
 
 
         // USER RELATED API
@@ -55,6 +56,37 @@ async function run() {
                 res.send(result);
             }
         });
+
+        app.post('/update-role', async (req, res) => {
+            const data = req.body;
+            const result = await requestCollection.insertOne(data);
+            res.send(result);
+        });
+
+        app.get('/users/request', async (req, res) => {
+            const cursor = requestCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.put('/users', async (req, res) => {
+            const email = req?.query?.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: {
+                    role: 'GUIDE'
+                },
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+        app.delete('/users/request/:requestId', async (req, res) => {
+            const id = req?.params?.requestId;
+            const query = { _id: new ObjectId(id) };
+            const result = await requestCollection.deleteOne(query);
+            res.send(result);
+        })
 
         // GUIDE RELATED API
 
