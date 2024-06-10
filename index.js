@@ -32,6 +32,7 @@ async function run() {
         const bookingCollection = database.collection("bookedPackage");
         const wishlistCollection = database.collection("wishlist");
         const requestCollection = database.collection("request");
+        const storyCollection = database.collection("stories");
 
 
         // USER RELATED API
@@ -67,7 +68,7 @@ async function run() {
             const cursor = requestCollection.find();
             const result = await cursor.toArray();
             res.send(result);
-        })
+        });
 
         app.put('/users', async (req, res) => {
             const email = req?.query?.email;
@@ -89,7 +90,6 @@ async function run() {
         })
 
         // GUIDE RELATED API
-
         app.get('/guides/all', async (req, res) => {
             const query = { role: 'GUIDE' };
             const cursor = usersCollection.find(query);
@@ -156,6 +156,13 @@ async function run() {
             const result = await wishlistCollection.insertOne(data);
             res.send(result);
         });
+
+        // BOOK PACKAGE RELATED API
+        app.get('/stories', async (req, res) => {
+            const cursor = storyCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
