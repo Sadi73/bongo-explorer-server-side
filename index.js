@@ -36,7 +36,6 @@ async function run() {
 
 
         // USER RELATED API
-
         app.get('/users', async (req, res) => {
             const email = req.query?.email;
             const query = email ? { email } : {};
@@ -143,6 +142,14 @@ async function run() {
             res.send(result);
         });
 
+        app.delete('/booked-package/delete/:id', async (req, res) => {
+            const id = req?.params?.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await bookingCollection.deleteOne(query);
+            res.send(result)
+        });
+
+         // WISHLIST RELATED API
         app.get('/wishlist/all', async (req, res) => {
             const email = req?.query?.email;
             const query = { touristEmail: email }
@@ -157,7 +164,14 @@ async function run() {
             res.send(result);
         });
 
-        // BOOK PACKAGE RELATED API
+        app.delete('/wishlist/delete/:id', async (req, res) => {
+            const id = req?.params?.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await wishlistCollection.deleteOne(query);
+            res.send(result)
+        });
+
+        // STORY RELATED API
         app.get('/stories', async (req, res) => {
             const cursor = storyCollection.find();
             const result = await cursor.toArray();
