@@ -149,7 +149,28 @@ async function run() {
             res.send(result)
         });
 
-         // WISHLIST RELATED API
+        app.get('/assigned-package/guide', async (req, res) => {
+            const guideEmail = req?.query?.email;
+            const query = { guide: guideEmail }
+            const cursor = bookingCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.put('/update-package-status/:id', async (req, res) => {
+            const updatedStatus = req?.body;
+            const id = req?.params?.id;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    status: updatedStatus.status
+                },
+            };
+            const result = await bookingCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
+        // WISHLIST RELATED API
         app.get('/wishlist/all', async (req, res) => {
             const email = req?.query?.email;
             const query = { touristEmail: email }
